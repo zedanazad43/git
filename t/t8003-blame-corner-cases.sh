@@ -8,7 +8,7 @@ export GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME
 
 pick_fc='s/^[0-9a-f^]* *\([^ ]*\) *(\([^ ]*\) .*/\1-\2/'
 
-test_expect_success setup '
+test_expect_success 'setup' '
 	echo A A A A A >one &&
 	echo B B B B B >two &&
 	echo C C C C C >tres &&

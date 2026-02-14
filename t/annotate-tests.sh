@@ -1,10 +1,11 @@
+# shellcheck disable=SC2148
 # This file isn't used as a test script directly, instead it is
 # sourced from t8001-annotate.sh and t8002-blame.sh.
 
 if test_have_prereq MINGW
 then
   sanitize_L () {
-	echo "$1" | sed 'sX\(^-L\|,\)\^\?/X&\\;*Xg'
+	echo "$1" | sed 'sX\(^-L\|,\)\^\?/X&\\\;*Xg'
   }
 else
   sanitize_L () {

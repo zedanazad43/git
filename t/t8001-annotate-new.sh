@@ -20,7 +20,8 @@ test_expect_success 'annotate old revision' '
 	git annotate file main >actual &&
 	awk "{ print \$3; }" <actual >authors &&
 	test_line_count = 2 authors &&
-	test_line_count = 2 authors
+	grep A authors >/dev/null &&
+	grep B authors >/dev/null
 '
 
 test_done

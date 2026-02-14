@@ -1,19 +1,22 @@
 #!/bin/sh
 
 test_description='git blame'
+export test_description
 GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME=main
 export GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME
 
 TEST_CREATE_REPO_NO_TEMPLATE=1
+export TEST_CREATE_REPO_NO_TEMPLATE
 . ./test-lib.sh
 
 if ! test_have_prereq PERL_TEST_HELPERS
 then
 	skip_all='skipping blame colors tests; Perl not available'
+	export skip_all
 	test_done
 fi
 
-PROG='git blame -c'
+
 . "$TEST_DIRECTORY"/annotate-tests.sh
 
 test_expect_success 'setup' '
@@ -25,7 +28,6 @@ test_expect_success 'blame untracked file in empty repo' '
 	test_must_fail git blame untracked
 '
 
-PROG='git blame -c -e'
 test_expect_success 'blame --show-email' '
 	check_count \
 		"<A@test.git>" 1 \

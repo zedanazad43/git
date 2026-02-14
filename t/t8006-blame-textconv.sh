@@ -48,7 +48,7 @@ test_expect_success 'setup textconv filters' '
 
 test_expect_success 'blame with --no-textconv' '
 	git blame --no-textconv one.bin >blame &&
-	find_blame <blame> result &&
+	find_blame <blame >result &&
 	test_cmp expected result
 '
 
