@@ -113,7 +113,7 @@ jobs:
       cancel-in-progress: ${{ needs.ci-config.outputs.skip_concurrent == 'yes' }}
     steps:
     - uses: actions/checkout@v5
-    - uses: git-for-windows/setup-git-for-windows-sdk@v1
+    - uses: git-for-windows/setup-git-for-windows-sdk@v5
     - name: build
       shell: bash
       env:
@@ -147,20 +147,8 @@ jobs:
     - name: extract tracked files and build artifacts
       shell: bash
       run: tar xf artifacts.tar.gz && tar xf tracked.tar.gz
-    - uses: git-for-windows/setup-git-for-windows-sdk@v1
-    - name: test
-      shell: bash
-      run: . /etc/profile && ci/run-test-slice.sh ${{matrix.nr}} 10
-    - name: print test failures
-      if: failure() && env.FAILED_TEST_ARTIFACTS != ''
-      shell: bash
-      run: ci/print-test-failures.sh
-    - name: Upload failed tests' directories
-      if: failure() && env.FAILED_TEST_ARTIFACTS != ''
-      uses: actions/upload-artifact@v5
-      with:
-        name: failed-tests-windows-${{ matrix.nr }}
-        path: ${{env.FAILED_TEST_ARTIFACTS}}
+    - uses: git-for-windows/setup-git-for-windows-sdk@v5
+   
   vs-build:
     name: win+VS build
     needs: ci-config
@@ -174,7 +162,7 @@ jobs:
       cancel-in-progress: ${{ needs.ci-config.outputs.skip_concurrent == 'yes' }}
     steps:
     - uses: actions/checkout@v5
-    - uses: git-for-windows/setup-git-for-windows-sdk@v1
+    - uses: git-for-windows/setup-git-for-windows-sdk@v5
     - name: initialize vcpkg
       uses: actions/checkout@v5
       with:
@@ -186,7 +174,7 @@ jobs:
         repository: git/git
         definitionId: 9
     - name: add msbuild to PATH
-      uses: microsoft/setup-msbuild@v2
+      uses: microsoft/setup-msbuild@v5
     - name: copy dlls to root
       shell: cmd
       run: compat\vcbuild\vcpkg_copy_dlls.bat release
@@ -224,7 +212,7 @@ jobs:
       group: vs-test-${{ matrix.nr }}-${{ github.ref }}
       cancel-in-progress: ${{ needs.ci-config.outputs.skip_concurrent == 'yes' }}
     steps:
-    - uses: git-for-windows/setup-git-for-windows-sdk@v1
+    - uses: git-for-windows/setup-git-for-windows-sdk@v5
     - name: download tracked files and build artifacts
       uses: actions/download-artifact@v6
       with:
@@ -239,16 +227,10 @@ jobs:
         NO_SVN_TESTS: 1
       run: . /etc/profile && ci/run-test-slice.sh ${{matrix.nr}} 10
     - name: print test failures
-      if: failure() && env.FAILED_TEST_ARTIFACTS != ''
-      shell: bash
-      run: ci/print-test-failures.sh
-    - name: Upload failed tests' directories
-      if: failure() && env.FAILED_TEST_ARTIFACTS != ''
+    
       uses: actions/upload-artifact@v5
-      with:
-        name: failed-tests-windows-vs-${{ matrix.nr }}
-        path: ${{env.FAILED_TEST_ARTIFACTS}}
-
+   
+      
   windows-meson-build:
     name: win+Meson build
     needs: ci-config
@@ -300,17 +282,10 @@ jobs:
       shell: pwsh
       run: ci/run-test-slice-meson.sh build ${{matrix.nr}} 10
     - name: print test failures
-      if: failure() && env.FAILED_TEST_ARTIFACTS != ''
-      shell: bash
-      run: ci/print-test-failures.sh
-    - name: Upload failed tests' directories
-      if: failure() && env.FAILED_TEST_ARTIFACTS != ''
+    
       uses: actions/upload-artifact@v4
       with:
-        name: failed-tests-windows-meson-${{ matrix.nr }}
-        path: ${{env.FAILED_TEST_ARTIFACTS}}
-
-  regular:
+        regular:
     name: ${{matrix.vector.jobname}} (${{matrix.vector.pool}})
     needs: ci-config
     if: needs.ci-config.outputs.enabled == 'yes'
@@ -332,27 +307,8 @@ jobs:
             pool: macos-14
           - jobname: osx-meson
             cc: clang
-            pool: macos-14
-    env:
-      CC: ${{matrix.vector.cc}}
-      CC_PACKAGE: ${{matrix.vector.cc_package}}
-      jobname: ${{matrix.vector.jobname}}
-      CI_JOB_IMAGE: ${{matrix.vector.pool}}
-      TEST_OUTPUT_DIRECTORY: ${{github.workspace}}/t
-    runs-on: ${{matrix.vector.pool}}
-    steps:
-    - uses: actions/checkout@v5
-    - run: ci/install-dependencies.sh
-    - run: ci/run-build-and-tests.sh
-    - name: print test failures
-      if: failure() && env.FAILED_TEST_ARTIFACTS != ''
-      run: ci/print-test-failures.sh
-    - name: Upload failed tests' directories
-      if: failure() && env.FAILED_TEST_ARTIFACTS != ''
-      uses: actions/upload-artifact@v5
-      with:
-        name: failed-tests-${{matrix.vector.jobname}}
-        path: ${{env.FAILED_TEST_ARTIFACTS}}
+         
+
   fuzz-smoke-test:
     name: fuzz smoke test
     needs: ci-config
@@ -444,15 +400,7 @@ jobs:
     - run: useradd builder --create-home
     - run: chown -R builder .
     - run: chmod a+w $GITHUB_ENV && sudo --preserve-env --set-home --user=builder ci/run-build-and-tests.sh
-    - name: print test failures
-      if: failure() && env.FAILED_TEST_ARTIFACTS != ''
-      run: sudo --preserve-env --set-home --user=builder ci/print-test-failures.sh
-    - name: Upload failed tests' directories
-      if: failure() && env.FAILED_TEST_ARTIFACTS != ''
-      uses: actions/upload-artifact@v5
-      with:
-        name: failed-tests-${{matrix.vector.jobname}}
-        path: ${{env.FAILED_TEST_ARTIFACTS}}
+    
   static-analysis:
     needs: ci-config
     if: needs.ci-config.outputs.enabled == 'yes'
